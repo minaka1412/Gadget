@@ -118,8 +118,4 @@ class System(object):
         """
         return subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
 
-
 System()
-
-# print(System.IsHostWindows())
-print(System.GetUsePythonVersion())
