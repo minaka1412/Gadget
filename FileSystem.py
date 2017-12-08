@@ -21,7 +21,7 @@ class FileSystem(object):
          * I:  bool  recursive  再帰的にチェックするか
          * R:  list             ファイル・フォルダのリスト
         """
-        from Path import Path
+        from Gadget.Path import Path
         retList = list()
         if recursive:
             for root, dirs, files in os.walk(path):
@@ -43,7 +43,7 @@ class FileSystem(object):
          * I:  bool  recursive  再帰的にチェックするか
          * R:  list  ファイルのリスト
         """
-        from Path import Path
+        from Gadget.Path import Path
         if recursive:
             retList = list(glob.glob(Path.Combine(path, extension)))
             dirList = FileSystem.GetFolderList(path, recursive=recursive)
@@ -60,7 +60,7 @@ class FileSystem(object):
          * I:  bool  recursive  再帰的にチェックするか
          * R:  list             フォルダのリスト
         """
-        from Directory import Directory
+        from Gadget.Directory import Directory
         retList = list()
         dirList = FileSystem.GetDirectoryList(path, recursive=recursive)
         for dirPath in dirList:
