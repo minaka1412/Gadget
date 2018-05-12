@@ -22,7 +22,7 @@ class System(object):
          * 使用中のPythonのバージョンを取得する
          * R: int  2 or 3
         """
-        return platform.python_version_tuple()[0]
+        return int(platform.python_version_tuple()[0])
 
     @staticmethod
     def IsHostWindows():
@@ -30,7 +30,7 @@ class System(object):
          * ホストOSがWindowsか
          * R:  bool  Windows時 True
         """
-        return platform.system() == "Windows"
+        return bool(platform.system() == "Windows")
 
     @staticmethod
     def IsHostMac():
@@ -38,7 +38,7 @@ class System(object):
          * ホストOSがMac OSか
          * R:  bool  Mac OS時 True
         """
-        return platform.system() == "Darwin"
+        return bool(platform.system() == "Darwin")
 
     @staticmethod
     def IsHostLinux():
@@ -46,7 +46,7 @@ class System(object):
          * ホストOSがLinuxか
          * R:  bool  Linux時 True
         """
-        return platform.system() == "Linux"
+        return bool(platform.system() == "Linux")
 
     @staticmethod
     def GetCpuCoreCount():
@@ -54,7 +54,7 @@ class System(object):
          * 実行中のPCのCPUコア数を取得する
          * R:  int  CPUのコア数
         """
-        return multiprocessing.cpu_count()
+        return int(multiprocessing.cpu_count())
 
     @staticmethod
     def GetEnv(name):
@@ -63,7 +63,7 @@ class System(object):
          * I:  str  name  環境変数名
          * R:  str        環境変数の値
         """
-        return str(os.environ[name])
+        return System.ToString(os.environ[name])
 
     @staticmethod
     def GetEnvBool(name):
@@ -72,7 +72,7 @@ class System(object):
          * I:  str   name  環境変数名
          * R:  bool        環境変数の値
         """
-        return System.GetEnv(name).lower() == "true"
+        return bool(System.GetEnv(name).lower() == "true")
 
     @staticmethod
     def GetEnvInt(name):
@@ -107,7 +107,7 @@ class System(object):
          * I:  str  command  実行するコマンド
          * R:  int           実行結果
         """
-        return subprocess.call(command, shell=True)
+        return int(subprocess.call(command, shell=True))
 
     @staticmethod
     def CallConsoleStr(command):
@@ -116,6 +116,35 @@ class System(object):
          * I:  str  command  実行するコマンド
          * R:  str           実行結果
         """
-        return subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+        ret = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+        return System.ToString(ret)
+
+    @staticmethod
+    def ToString(data, encodeType="utf-8_sig"):
+        """
+         * 引数の文字列かバイト列を文字列に変換する
+         * I: str or byte  data        変換対象のデータ
+         * I: str          encodeType  変換後の文字列のエンコード形式
+         * R: str                      変換後のデータ
+        """
+        pythonVersion = System.GetUsePythonVersion()
+        if pythonVersion == 3:
+            if isinstance(data, str):
+                return data
+            return str(data.decode(encodeType))
+        elif pythonVersion == 2:
+            if isinstance(data, unicode):
+                convStr = data.encode(encodeType)
+            else:
+                try:
+                    uniStr = data.decode(encodeType)
+                except UnicodeDecodeError:
+                    try:
+                        uniStr = data.decode('utf-8')
+                    except UnicodeDecodeError:
+                        uniStr = data.decode('shift-jis')
+                convStr = uniStr.encode(encodeType)
+            return convStr
+        return data
 
 System()
