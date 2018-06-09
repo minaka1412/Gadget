@@ -32,24 +32,24 @@ class File(object):
         os.rename(src, dst)
 
     @staticmethod
-    def Create(path, text):
+    def Create(path, text, encode="utf-8_sig"):
         """
          * ファイルを新規作成する
          * I: str  path  作成するファイルのパス
          * I: str  msg   ファイルに書き込むテキスト
         """
-        with open(path, 'w') as fobj:
+        with open(path, 'w', encoding=encode) as fobj:
             fobj.write(text)
 
     @staticmethod
-    def Append(path, text):
+    def Append(path, text, encode="utf-8_sig"):
         """
          * ファイルに追記する
          * I: str  path    作成するファイルのパス
          * I: str  msg     ファイルに書き込むテキスト
          * I: str  encode  ファイルを開く際のエンコード
         """
-        with open(path, 'a') as fobj:
+        with open(path, 'a', encoding=encode) as fobj:
             fobj.write(text)
 
     @staticmethod
@@ -59,11 +59,46 @@ class File(object):
          * I: str  path  読み込むファイルのパス
          * R: list       ファイルの内容
         """
-        fileText = list()
-        with open(path, 'r') as fobj:
-            for row in fobj:
-                fileText.append(row)
-        return fileText
+        return File.__LoadEncodeText(path)
+
+    @staticmethod
+    def LoadList(path):
+        """
+         * ファイルを読み込む
+         * I: str  path  読み込むファイルのパス
+         * R: list       ファイルの内容
+        """
+        return File.__LoadEncodeText(path).split("\n")
+
+    @staticmethod
+    def __LoadEncodeText(path):
+        """
+        """
+        encodeType = [
+            "utf-8_sig",
+            "utf-8",
+            "shift-jis",
+            "euc-jp",
+            "utf-16",
+            "utf-16-be",
+            "utf-16-le",
+            "utf-7",
+            "euc-jisx0213",
+            "euc-jis-2004",
+            "iso-2022-jp",
+            "iso-2022-jp-1",
+            "iso-2022-jp-2",
+            "iso-2022-jp-3",
+            "iso-2022-jp-ext",
+            "iso-2022-jp-2004",
+        ]
+        for encode in encodeType:
+            try:
+                with open(path, 'r', encoding=encode) as fobj:
+                    return fobj.read()
+            except UnicodeDecodeError:
+                continue
+        return None
 
     @staticmethod
     def LoadBinary(path):
