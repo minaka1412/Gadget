@@ -8,6 +8,8 @@ from __future__ import division, print_function, absolute_import, unicode_litera
 
 import glob
 import os
+import platform
+import subprocess
 
 class FileSystem(object):
     """
@@ -72,12 +74,29 @@ class FileSystem(object):
     def CreateSymbolicLink(srcPath, dstPath):
         """
          * シンボリックリンクを作成する
+         * Windows環境下では管理者権限が必要
          * I:  str   srcPath  作成元のディレクトリパス
          * I:  str   dstPath  作成先のディレクトリパス
+         * R:  bool  True 成功
         """
         try:
-            os.symlink(srcPath, dstPath)
+            sysName = platform.system().lower()
+            if sysName == "windows":
+                command = "mklink"
+                if os.path.isdir(srcPath):
+                    command = command + " /d"
+                command = command + " " + dstPath + " " + srcPath
+                log = str(subprocess.check_output(command, shell=True))
+                return True
+            else:
+                os.symlink(srcPath, dstPath)
+            return True
         except OSError as e:
-            print("OSError: " + e)
+            print("OSError: " + str(e))
+            return False
+        except subprocess.CalledProcessError as e:
+            print("subprocess.CalledProcessError: " + str(e))
+            return False
+
 
 FileSystem()

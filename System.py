@@ -6,6 +6,7 @@
 """
 from __future__ import division, print_function, absolute_import, unicode_literals
 
+import ctypes
 import multiprocessing
 import os
 import platform
@@ -47,6 +48,54 @@ class System(object):
          * R:  bool  Linux時 True
         """
         return bool(platform.system() == "Linux")
+
+    @staticmethod
+    def IsAdmin():
+        """
+         * 管理者権限で実行しているか
+         * Windows環境下のみ動作
+         * R:  bool  管理者権限で実行時 True
+        """
+        try:
+            if System.IsHostWindows():
+                return ctypes.windll.shell32.IsUserAnAdmin()
+            else:
+                return False
+        except:
+            return False
+
+    @staticmethod
+    def GetAndRunAdminPermission(func=None):
+        """
+         * 管理者権限で再実行
+         * Windows環境下でのみ動作
+         * I:  def   func  実行する関数ポインタ
+         * R:  bool  管理者権限で実行時 True
+        """
+        if System.IsAdmin():
+            if func is not None:
+                func()
+            return True
+        else:
+            System.GetAdminPermission(sys.argv[0])
+            return False
+
+    @staticmethod
+    def GetAdminPermission(callFile):
+        """
+         * スクリプトを管理者権限で再実行
+         * Windows環境下でのみ動作
+         * I:  str   callFile  呼び出し元のファイル名
+         * FROM: https://stackoverflow.com/questions/130763/request-uac-elevation-from-within-a-python-script
+        """
+        if System.IsHostWindows():
+            version = System.GetUsePythonVersion()
+            if version == 3:
+                ctypes.windll.shell32.ShellExecuteW(
+                    None, "runas", sys.executable, callFile, None, 1)
+            elif version == 2:
+                ctypes.windll.shell32.ShellExecuteW(None, u"runas", unicode(
+                    sys.executable), unicode(callFile), None, 1)
 
     @staticmethod
     def GetCpuCoreCount():
