@@ -38,8 +38,8 @@ class File(object):
          * I: str  path  作成するファイルのパス
          * I: str  msg   ファイルに書き込むテキスト
         """
-        with open(path, 'w', encoding=encode) as fobj:
-            fobj.write(text)
+        with open(path, 'w', encoding=encode, newline='') as file:
+            file.write(text)
 
     @staticmethod
     def Append(path, text, encode="utf-8_sig"):
@@ -49,8 +49,8 @@ class File(object):
          * I: str  msg     ファイルに書き込むテキスト
          * I: str  encode  ファイルを開く際のエンコード
         """
-        with open(path, 'a', encoding=encode) as fobj:
-            fobj.write(text)
+        with open(path, 'a', encoding=encode, newline='') as file:
+            file.write(text)
 
     @staticmethod
     def Load(path):
@@ -94,8 +94,8 @@ class File(object):
         ]
         for encode in encodeType:
             try:
-                with open(path, 'r', encoding=encode) as fobj:
-                    return fobj.read()
+                with open(path, 'r', encoding=encode, newline='') as file:
+                    return file.read()
             except UnicodeDecodeError:
                 continue
         return None
@@ -108,8 +108,8 @@ class File(object):
          * R: list       ファイルの内容
         """
         fileText = list()
-        with open(path, 'rb') as fobj:
-            for row in fobj:
+        with open(path, 'rb') as file:
+            for row in file:
                 fileText.append(row)
         return fileText
 
